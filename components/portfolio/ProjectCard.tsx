@@ -1,8 +1,8 @@
 import { Project } from "./ProjectCards";
 import TechTag from "./TechTag";
 
-const ProjectCard: React.FC<{ project: Project, key: number }> = ({ project, key }) => (
-    <div key={key} className="border p-4 rounded-lg shadow-md bg-white dark:bg-gray-800">
+const ProjectCard: React.FC<{ project: Project, index: number }> = ({ project, index }) => (
+    <div key={index} className="border p-4 rounded-lg shadow-md bg-white dark:bg-gray-800">
         <h2 className="text-xl font-semibold">
             {project.title}
         </h2>

@@ -49,7 +49,7 @@ const ProjectCards = () => {
     return (
         <>
             {projects.map((project, index) => (
-                <ProjectCard project={project} key={index} />
+                <ProjectCard key={index} project={project} index={index} />
             ))}
         </>
     );
