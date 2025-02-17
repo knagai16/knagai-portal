@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Knagai Portal 🚀
 
-## Getting Started
+Knagai Portal は、エンジニア向けのポータルサイトです。  
+Next.js + TypeScript を活用して開発し、AWS S3 + CloudFront を使ってデプロイしています。
 
-First, run the development server:
+## 📌 使用技術
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js**: React ベースのフレームワーク
+- **TypeScript**: 型安全な開発のために採用
+- **Tailwind CSS**: シンプルなスタイリング
+- **AWS S3**: 静的サイトホスティング
+- **AWS CloudFront**: CDN によるパフォーマンス向上
+- **AWS CDK**: インフラの IaC（Infrastructure as Code）化
+- **Formspree**: お問い合わせフォームのバックエンド
+
+## 🚀 セットアップ方法
+
+### **1. Next.js アプリのセットアップ**
+
+```sh
+git clone https://github.com/yourusername/knagai-portal.git
+cd knagai-portal
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### **開発サーバーの起動**
+```sh
+npm run dev
+```
+ブラウザで `http://localhost:3000` にアクセスすると、開発中のサイトを確認できます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📬 お問い合わせフォームの設定
 
-## Learn More
+お問い合わせフォームは **Formspree** を利用して構築しています。  
+`.env.local` に以下の環境変数を設定してください。
 
-To learn more about Next.js, take a look at the following resources:
+```
+NEXT_PUBLIC_FORMSPREE_ENDPOINT=your_formspree_endpoint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+この設定を追加し、アプリを再起動することでフォームが有効になります。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📜 ライセンス
+このプロジェクトのコードは個人の著作物です。  
+**利用や改変を希望する場合は、事前にご連絡ください！**  
+無断使用はご遠慮いただけると助かります 🙏
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+💡 **Knagai Portal は、エンジニアとしての活動を発信するためのポートフォリオサイトです。  
+改善点や提案があれば、ぜひ PR や Issue でご連絡ください！**
