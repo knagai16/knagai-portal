@@ -12,9 +12,7 @@ const Portfolio = () => {
         Knagai&apos;s Portfolio
       </h1>
 
-      <p className="mb-6">
-        これまでに携わったプロジェクトを紹介します。
-      </p>
+      <p className="mb-6">これまでに携わったプロジェクトを紹介します。</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ProjectCards />
       </div>
