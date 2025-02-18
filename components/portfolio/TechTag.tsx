@@ -12,9 +12,8 @@ const techLogos: Record<string, string> = {
   "AWS EKS": "/logos/eks.svg",
 };
 
-const TechTag: React.FC<{ tech: string; key: number }> = ({ tech, key }) => (
+const TechTag: React.FC<{ tech: string }> = ({ tech }) => (
   <span
-    key={key}
     className="flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-md text-gray-800 dark:text-gray-100 text-sm px-2 py-1 rounded"
   >
     {tech !== "Java" && (

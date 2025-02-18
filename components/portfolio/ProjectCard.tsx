@@ -21,7 +21,7 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({
     <p className="mt-2">{project.description}</p>
     <div className="mt-2 flex flex-wrap gap-2">
       {project.technologies.map((tech, i) => (
-        <TechTag tech={tech} key={i} />
+        <TechTag key={i} tech={tech} />
       ))}
     </div>
   </div>
