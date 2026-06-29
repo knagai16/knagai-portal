@@ -1,19 +1,20 @@
-import ContactForm from "@/components/contact/ContactForm";
+import ContactForm from "./ContactForm";
 
 export default function ContactFormWrapper() {
-  const hashId = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
+  const formId = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
 
-  // 環境変数がない場合のエラーメッセージ
-  if (!hashId) {
+  if (!formId) {
     return (
-      <div className="container mx-auto px-4 py-12 text-blue-900 dark:text-blue-400">
-        <p className="text-center text-red-500 font-bold">
-          ⚠ お問い合わせフォームが利用できません。
-          <br />
-          Profileページの各種SNSからお問い合わせください。
-        </p>
+      <div className="panel grid min-h-80 place-items-center p-8 text-center">
+        <div>
+          <p className="text-xl font-extrabold">フォームは現在準備中です</p>
+          <p className="mt-3 max-w-sm leading-7 text-muted">
+            GitHubまたはLinkedInからご連絡ください。
+          </p>
+        </div>
       </div>
     );
   }
-  return <ContactForm hashId={hashId} />;
+
+  return <ContactForm formId={formId} />;
 }
