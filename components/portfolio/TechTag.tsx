@@ -14,7 +14,7 @@ const techLogos: Record<string, string> = {
 
 const TechTag: React.FC<{ tech: string }> = ({ tech }) => (
   <span
-    className="flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-md text-gray-800 dark:text-gray-100 text-sm px-2 py-1 rounded"
+    className="flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-md text-gray-800 dark:text-gray-100 text-sm px-2 py-1 rounded-sm"
   >
     {tech !== "Java" && (
       <Image src={techLogos[tech]} alt={tech} width={24} height={24} />
