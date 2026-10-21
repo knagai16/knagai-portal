@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint app components next.config.ts",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:static": "node scripts/verify-static-export.mjs"
   },
   "dependencies": {
     "@formspree/react": "^3.0.0",

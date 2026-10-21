@@ -1,55 +1,53 @@
-# Knagai Portal 🚀
+# knagai portal
 
-Knagai Portal は、エンジニア向けのポータルサイトです。  
-Next.js + TypeScript を活用して開発し、AWS S3 + CloudFront を使ってデプロイしています。
+Personal portfolio built as a statically exported Next.js application.
 
-## 📌 使用技術
+## Stack
 
-- **Next.js**: React ベースのフレームワーク
-- **TypeScript**: 型安全な開発のために採用
-- **Tailwind CSS**: シンプルなスタイリング
-- **AWS S3**: 静的サイトホスティング
-- **AWS CloudFront**: CDN によるパフォーマンス向上
-- **AWS CDK**: インフラの IaC（Infrastructure as Code）化
-- **Formspree**: お問い合わせフォームのバックエンド
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- Formspree
+- AWS S3 and CloudFront
+- AWS CDK
 
-## 🚀 セットアップ方法
+## Local development
 
-### **1. Next.js アプリのセットアップ**
-
-```sh
-git clone https://github.com/yourusername/knagai-portal.git
+```bash
+git clone git@github.com:knagai16/knagai-portal.git
 cd knagai-portal
 npm install
-```
-
-#### **開発サーバーの起動**
-```sh
+cp .env.example .env.local
 npm run dev
 ```
-ブラウザで `http://localhost:3000` にアクセスすると、開発中のサイトを確認できます。
 
----
+Open <http://localhost:3000>.
 
-## 📬 お問い合わせフォームの設定
+The contact form requires a public Formspree form ID in `.env.local`:
 
-お問い合わせフォームは **Formspree** を利用して構築しています。  
-`.env.local` に以下の環境変数を設定してください。
-
-```
-NEXT_PUBLIC_FORMSPREE_ENDPOINT=your_formspree_endpoint
+```dotenv
+NEXT_PUBLIC_FORMSPREE_ENDPOINT=your_form_id
 ```
 
-この設定を追加し、アプリを再起動することでフォームが有効になります。
+The contact page displays a fallback when the value is unset. Values prefixed
+with `NEXT_PUBLIC_` are included in the browser bundle and must never contain a
+secret.
 
----
+## Checks
 
-## 📜 ライセンス
-このプロジェクトのコードは個人の著作物です。  
-**利用や改変を希望する場合は、事前にご連絡ください！**  
-無断使用はご遠慮いただけると助かります 🙏
+```bash
+npm run lint
+npm run typecheck
+npm run build
+npm run test:static
+```
 
----
+`npm run build` exports the static site to `out/`.
+`npm run test:static` verifies the exported `/`, `/contact`, and `/portfolio`
+pages used by the CloudFront URL rewrite function.
 
-💡 **Knagai Portal は、エンジニアとしての活動を発信するためのポートフォリオサイトです。  
-改善点や提案があれば、ぜひ PR や Issue でご連絡ください！**
+## Infrastructure
+
+The `infra/` directory contains the AWS CDK stack used for private S3 hosting
+behind CloudFront Origin Access Control.

@@ -1,55 +1,47 @@
-import "./globals.css";
-import Link from "next/link";
-import { Montserrat } from "next/font/google";
+import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
+import "./globals.css";
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-});
+export const metadata: Metadata = {
+  title: { default: "knagai portal — Software Engineer", template: "%s — knagai portal" },
+  description: "BtoB決済プロダクトの技術選定と立ち上げに取り組むソフトウェアエンジニアのポートフォリオ。",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ja" className={montserrat.className}>
-      <head>
-        <link rel="icon" href="/icon.png" />
-      </head>
+    <html lang="ja">
       <body>
-        <header className="w-full py-4 bg-blue-900 dark:bg-blue-400 text-gray-50 dark:text-gray-900 border-b border-gray-300 dark:border-gray-700 shadow-md">
-          <nav className="container mx-auto flex justify-between items-center">
-            <Link
-              href="/"
-              className="flex items-center space-x-2"
-              style={{ width: "white" }}
-            >
+        <header className="sticky top-0 z-50 border-b border-ink/15 bg-paper/90 backdrop-blur-md">
+          <nav className="site-shell flex h-20 items-center justify-between" aria-label="メインナビゲーション">
+            <Link href="/" className="group flex items-center gap-3 font-extrabold tracking-[-0.04em]">
               <Image
-                style={{ filter: "invert(100%)" }}
-                src="/icon.png" // ロゴのパス
-                alt="Knagai Portal Logo"
-                width={32} // 適宜変更
-                height={32} // 適宜変更
+                src="https://github.com/knagai16.png"
+                alt="knagai GitHub avatar"
+                width={36}
+                height={36}
+                className="rounded-full border border-ink/15 group-hover:rotate-6"
+                priority
               />
-              <span className="text-xl font-bold">Knagai Portal</span>
+              <span>knagai portal</span>
             </Link>
-            <div className="space-x-4">
-              <Link href="/" className="hover:underline">
-                Profile
-              </Link>
-              <Link href="/portfolio" className="hover:underline">
-                Portfolio
-              </Link>
-              <Link href="/contact" className="hover:underline">
-                Contact
-              </Link>
+            <div className="flex items-center gap-5 text-sm font-bold sm:gap-8">
+              <Link href="/portfolio" className="hover:opacity-55">Work</Link>
+              <Link href="/contact" className="rounded-full bg-ink px-5 py-2.5 text-paper hover:bg-blue-900">Contact</Link>
             </div>
           </nav>
         </header>
-        <main className="container mx-auto px-4 py-8">{children}</main>
+        <main>{children}</main>
+        <footer className="border-t border-ink/15 py-8">
+          <div className="site-shell flex flex-col gap-3 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} knagai portal</p>
+            <p>Designed & built in Tokyo.</p>
+          </div>
+        </footer>
       </body>
     </html>
   );

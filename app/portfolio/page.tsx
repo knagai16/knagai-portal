@@ -1,23 +1,17 @@
+import type { Metadata } from "next";
 import ProjectCards from "@/components/portfolio/ProjectCards";
-import Head from "next/head";
-import React from "react";
 
-const Portfolio = () => {
+export const metadata: Metadata = { title: "Work", description: "これまでに携わったプロジェクトと開発経験。" };
+
+export default function Portfolio() {
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-gray-900 text-blue-900 dark:text-blue-400">
-      <Head>
-        <title>Portfolio</title>
-      </Head>
-      <h1 className="text-3xl font-bold mb-4 text-blue-900 dark:text-blue-400">
-        Knagai&apos;s Portfolio
-      </h1>
-
-      <p className="mb-6">これまでに携わったプロジェクトを紹介します。</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ProjectCards />
+    <div className="site-shell py-16 sm:py-24">
+      <div className="mb-14 border-b border-ink/20 pb-12 sm:mb-20">
+        <p className="eyebrow mb-7">Experience & projects</p>
+        <h1 className="display text-[clamp(4rem,11vw,8rem)]">SELECTED<br />WORK<span className="text-accent-strong">.</span></h1>
+        <p className="mt-8 max-w-2xl text-lg leading-8 text-muted">大規模Webサービスの開発・運用から、会計プロダクトの開発リード、BtoB決済システムの0→1立ち上げまで。これまでに携わった仕事を紹介します。</p>
       </div>
+      <ProjectCards />
     </div>
   );
-};
-
-export default Portfolio;
+}

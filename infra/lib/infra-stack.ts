@@ -2,6 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as iam from "aws-cdk-lib/aws-iam";
+import { URL_REWRITE_FUNCTION_CODE } from "./url-rewrite-function";
 
 export class InfraStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -24,6 +25,16 @@ export class InfraStack extends cdk.Stack {
         signingProtocol: "sigv4",
       },
     });
+
+    const urlRewriteFunction = new cloudfront.Function(
+      this,
+      "KnagaiPortalUrlRewrite",
+      {
+        code: cloudfront.FunctionCode.fromInline(URL_REWRITE_FUNCTION_CODE),
+        comment: "Resolve extensionless URLs to static HTML exports",
+        runtime: cloudfront.FunctionRuntime.JS_2_0,
+      },
+    );
 
     // CloudFront ディストリビューション作成
     const distribution = new cloudfront.CfnDistribution(
@@ -50,6 +61,12 @@ export class InfraStack extends cdk.Stack {
               queryString: false,
               cookies: { forward: "none" },
             },
+            functionAssociations: [
+              {
+                eventType: "viewer-request",
+                functionArn: urlRewriteFunction.functionArn,
+              },
+            ],
           },
         },
       },

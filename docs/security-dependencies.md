@@ -12,7 +12,7 @@
 
 Webとinfraの`npm ci`、Webのlint・型検査・ビルド、infraのビルド・既存Jestテスト、
 CDKの`--no-lookups`でのテンプレート生成が成功。
-既存Jestテストは雛形のため、インフラの振る舞いの保証にはならない。
+最新main取り込み後、インフラの既存Jestテスト6件と静的書き出しテストも成功。
 この環境には操作可能なブラウザがなく、Tailwind移行後の目視確認は未実施。
 検証ホストのNode.jsは22.11.0であり、更新後の依存のengine要件に対する警告が出る。
 通常の開発・CIでは`.nvmrc`に従い22系の最新パッチを使用する。
@@ -24,6 +24,7 @@ CDKの`--no-lookups`でのテンプレート生成が成功。
 - Next.js内部のPostCSSは`overrides`で直接依存と同じ修正版に統一。
 - Tailwind CSS 4と専用PostCSSプラグインに移行し、Tailwind経由のbraces依存を除去。
   既存の設定は`@config`で読み込み、border色、buttonカーソル、角丸の互換性を調整。
+  mainの刷新後の配色は`--palette-*`変数を使用し、半透明色もTailwind 4形式で生成する。
   Tailwind 4の対象ブラウザはSafari 16.4+、Chrome 111+、Firefox 128+。
 - ESLintを直接実行するlintコマンドに変更。Webとinfraの型検証範囲を分離。
 - AWS CDK、Jest 30、互換性のあるts-jestと間接依存を更新。

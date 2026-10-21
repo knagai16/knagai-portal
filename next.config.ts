@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "github.com",
-        port: "",
         pathname: "/knagai16.png",
       },
     ],

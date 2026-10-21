@@ -9,8 +9,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        ink: "rgb(var(--palette-ink))",
+        muted: "rgb(var(--palette-muted))",
+        paper: "rgb(var(--palette-paper))",
+        surface: "rgb(var(--palette-surface))",
+        accent: "rgb(var(--palette-accent))",
+        "accent-strong": "rgb(var(--palette-accent-strong))",
+        "accent-soft": "rgb(var(--palette-accent-soft))",
+      },
+      boxShadow: {
+        card: "0 18px 50px rgb(var(--palette-ink) / 0.1)",
       },
     },
   },

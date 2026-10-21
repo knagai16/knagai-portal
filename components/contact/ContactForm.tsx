@@ -1,46 +1,60 @@
 "use client";
 
-import React from "react";
 import { useForm, ValidationError } from "@formspree/react";
 
-const ContactForm = ({ hashId }: { hashId: string }) => {
-  const [state, handleSubmit] = useForm(hashId);
+const FIELD_CLASS_NAME = [
+  "mt-2 block w-full rounded-xl border border-ink/20 bg-paper px-4 py-3.5",
+  "outline-none focus:border-ink focus:ring-2 focus:ring-accent",
+].join(" ");
+
+interface ContactFormProps {
+  formId: string;
+}
+
+export default function ContactForm({ formId }: ContactFormProps) {
+  const [state, handleSubmit] = useForm(formId);
 
   if (state.succeeded) {
     return (
-      <div className="text-green-500 text-center mt-4">
-        <p>✅ 送信が完了しました！お問い合わせ、ありがとうございます。</p>
+      <div
+        className="panel grid min-h-80 place-items-center p-8 text-center"
+        role="status"
+      >
+        <div>
+          <p className="mb-3 text-4xl" aria-hidden="true">✓</p>
+          <p className="text-xl font-extrabold">送信しました</p>
+          <p className="mt-2 text-muted">お問い合わせありがとうございます。</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <form
-      className="max-w-lg mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
-      onSubmit={handleSubmit}
-    >
-      <label className="block mb-4">
-        <span className="text-gray-700 dark:text-gray-300">メールアドレス</span>
-
+    <form className="panel p-7 sm:p-10" onSubmit={handleSubmit}>
+      <label className="mb-7 block text-sm font-bold">
+        メールアドレス
         <input
           id="email"
           type="email"
           name="email"
-          className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:ring-blue-500 focus:border-blue-500"
+          className={FIELD_CLASS_NAME}
+          placeholder="you@example.com"
+          autoComplete="email"
           required
         />
         <ValidationError prefix="Email" field="email" errors={state.errors} />
       </label>
 
-      <label className="block mb-4">
-        <span className="text-gray-700 dark:text-gray-300">メッセージ</span>
+      <label className="mb-7 block text-sm font-bold">
+        メッセージ
         <textarea
           id="message"
           name="message"
-          rows={10}
-          className="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 p-2 focus:ring-blue-500 focus:border-blue-500"
+          rows={8}
+          className={FIELD_CLASS_NAME}
+          placeholder="お問い合わせ内容をご記入ください"
           required
-        ></textarea>
+        />
         <ValidationError
           prefix="Message"
           field="message"
@@ -51,16 +65,10 @@ const ContactForm = ({ hashId }: { hashId: string }) => {
       <button
         type="submit"
         disabled={state.submitting}
-        className={`w-full text-white font-bold py-2 px-4 rounded-lg transition-all ${
-          state.submitting
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-        }`}
+        className="w-full rounded-full bg-ink px-6 py-4 font-extrabold text-white hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {state.submitting ? "送信中..." : "送信する"}
+        {state.submitting ? "送信中…" : "メッセージを送る ↗"}
       </button>
     </form>
   );
-};
-
-export default ContactForm;
+}
