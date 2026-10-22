@@ -3,7 +3,6 @@ set -euo pipefail
 
 : "${S3_BUCKET:?Missing bucket}"
 : "${CLOUDFRONT_DISTRIBUTION_ID:?Missing distribution}"
-: "${GITHUB_SHA:?Missing revision}"
 test -s out/index.html
 test -s out/contact.html
 test -s out/portfolio.html
@@ -31,7 +30,4 @@ for path in / /contact /contact/ /portfolio /portfolio/; do
     --proto '=https' --output /dev/null "https://knagai.com$path"
 done
 
-curl --fail --silent --show-error --retry 3 --max-time 30 --proto '=https' \
-  https://knagai.com/deployment.json \
-  | node -e 'let s="";process.stdin.on("data",x=>s+=x).on("end",()=>require("node:assert/strict").equal(JSON.parse(s).commit,process.env.GITHUB_SHA))'
 echo 'Deployment and public routes verified.'

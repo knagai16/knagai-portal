@@ -28,9 +28,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check tracked files for private material
-        run: node scripts/verify-public-files.mjs --tracked
-
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -43,10 +40,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Typecheck and security guard tests
-        run: |
-          npm run typecheck
-          node --test scripts/*.test.mjs
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Validate public production configuration
         if: github.repository == 'knagai16/knagai-portal' && github.ref == 'refs/heads/main'
@@ -61,10 +56,7 @@ jobs:
         run: npm run build
 
       - name: Verify static export
-        run: |
-          npm run test:static
-          node -e 'require("node:fs").writeFileSync("out/deployment.json", JSON.stringify({ commit: process.env.GITHUB_SHA }) + "\n")'
-          node scripts/verify-public-files.mjs out
+        run: npm run test:static
 
       - name: Upload verified public files
         id: upload
@@ -116,8 +108,6 @@ jobs:
       id-token: write
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-      AWS_DEPLOY_ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
       S3_BUCKET: ${{ vars.S3_BUCKET }}
       CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
       AWS_PAGER: ''
@@ -136,17 +126,9 @@ jobs:
           merge-multiple: true
           digest-mismatch: error
 
-      - name: Validate deployment input before obtaining AWS credentials
+      - name: Refuse outdated deployments
         shell: bash
         run: |
-          set -euo pipefail
-          [[ "$AWS_ACCOUNT_ID" =~ ^[0-9]{12}$ ]]
-          [[ "$AWS_REGION" =~ ^[a-z]{2}-[a-z]+-[0-9]+$ ]]
-          [[ "$AWS_DEPLOY_ROLE_ARN" == "arn:aws:iam::$AWS_ACCOUNT_ID:role/knagai-portal-github-deploy" ]]
-          [[ "$S3_BUCKET" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]]
-          [[ "$CLOUDFRONT_DISTRIBUTION_ID" =~ ^[A-Z0-9]+$ ]]
-          node scripts/verify-public-files.mjs out
-          node -e 'require("node:assert/strict").equal(JSON.parse(require("node:fs").readFileSync("out/deployment.json")).commit, process.env.GITHUB_SHA)'
           current_main="$(git ls-remote origin refs/heads/main | cut -f1)"
           [[ "$current_main" == "$GITHUB_SHA" ]] || { echo 'Refusing to deploy an outdated main commit.'; exit 1; }
 

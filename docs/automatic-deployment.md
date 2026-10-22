@@ -1,7 +1,7 @@
 # GitHub Actionsによる自動公開
 
 mainへのpush後、CIの`web`と`infra`が成功すると、検証済みの静的ファイルをS3へ反映し、CloudFrontキャッシュを削除します。
-公開ページ5パターンと`deployment.json`のコミットIDを確認して完了します。
+公開ページ5パターンのHTTP応答を確認して完了します。
 Actionsの`CI`をmainに対して手動実行することもできます。
 
 ## 認証と公開範囲
@@ -15,10 +15,10 @@ Actionsの`CI`をmainに対して手動実行することもできます。
 - 公式ActionsはコミットSHA固定、checkoutの認証永続化と依存キャッシュは無効です。
 - IAM権限は対象バケットの一覧・書き込み・削除と、対象Distributionのキャッシュ削除・完了確認のみです。
   バケット設定、IAM、CloudFront設定、CDKの変更権限は持ちません。
-- artifactには検査済み`out/`だけを含め、保持期間は1日です。公開リポジトリのartifactやログは公開情報として扱います。
-- `.env`、秘密鍵、ローカル資料、symlink、source map、既知の認証情報形式を検出すると停止します。
-  これは補助検査であり、すべての独自形式の秘密情報を検出する保証はありません。GitHubのSecret scanning・push protectionも併用します。
-- `.env.example`には空のプレースホルダーだけを許可します。フォームIDは公開値です。
+- artifactにはビルドした`out/`だけを含め、保持期間は1日です。公開リポジトリのartifactやログは公開情報として扱います。
+- 秘密情報の検出にはGitHubのSecret scanning・push protectionを利用します。
+- `public/`内のファイルと`NEXT_PUBLIC_*`は公開されます。秘密情報を置かず、PRでも確認してください。
+  `.env.example`には空のプレースホルダーだけを記載します。フォームIDは公開値です。
 
 ## GitHub repository variables
 
@@ -41,15 +41,83 @@ Actionsの`CI`をmainに対して手動実行することもできます。
 以下は再構築が必要になった場合の手順です。
 
 1. AWSに`https://token.actions.githubusercontent.com`、audience `sts.amazonaws.com`のOIDCプロバイダーを登録します。
-2. `AWS_ACCOUNT_ID`、`GITHUB_REPOSITORY_ID`、`S3_BUCKET`、`CLOUDFRONT_DISTRIBUTION_ID`を指定して
-   `node scripts/github-deploy-policies.mjs tmp/github-deploy-setup`を実行します。
+2. 下の設定例のプレースホルダーを対象環境の値に置き換え、ローカルの`tmp/`配下にJSONとして保存します。
 3. `trust.json`で`knagai-portal-github-deploy`ロールを作成し、`permissions.json`をinline policyとして設定します。
 4. `oidc.json`をGitHubの`PUT /repos/knagai16/knagai-portal/actions/oidc/customization/sub`へ適用します。
    subjectのキー順は`repository_id`, `ref`, `workflow_ref`, `event_name`です。IAM側と同時に変更してください。
 5. 上記repository variablesを設定します。AWSキーを登録する必要はありません。
 6. mainをPR・CI必須に保護し、`web`・`infra`の成功後にマージします。
 
-作成したIAMロールとOIDCはサイトのCDKスタックとは別管理です。設定生成コードとローカル作業ログから再構築できます。
+作成したIAMロールとOIDCはサイトのCDKスタックとは別管理です。以下の設定例から再構築できます。
+
+### OIDC・IAM設定例
+
+`<ACCOUNT_ID>`、`<REPOSITORY_ID>`、`<BUCKET>`、`<DISTRIBUTION_ID>`を置き換えてください。
+リポジトリIDは`gh api repos/knagai16/knagai-portal --jq .id`で確認できます。
+別リポジトリへ移す場合は`workflow_ref`内の所有者・リポジトリ名も変更します。
+
+`oidc.json`（GitHubのsubject設定）:
+
+```json
+{
+  "use_default": false,
+  "include_claim_keys": ["repository_id", "ref", "workflow_ref", "event_name"]
+}
+```
+
+`trust.json`（IAMロールの信頼ポリシー）:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": {
+      "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
+    },
+    "Action": "sts:AssumeRoleWithWebIdentity",
+    "Condition": {
+      "StringEquals": {
+        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+        "token.actions.githubusercontent.com:sub": [
+          "repository_id:<REPOSITORY_ID>:ref:refs/heads/main:workflow_ref:knagai16/knagai-portal/.github/workflows/ci.yml@refs/heads/main:event_name:push",
+          "repository_id:<REPOSITORY_ID>:ref:refs/heads/main:workflow_ref:knagai16/knagai-portal/.github/workflows/ci.yml@refs/heads/main:event_name:workflow_dispatch"
+        ]
+      }
+    }
+  }]
+}
+```
+
+`permissions.json`（名前`PublishStaticSite`で登録するinline policy）:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket", "s3:GetBucketLocation"],
+      "Resource": "arn:aws:s3:::<BUCKET>"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:DeleteObject"],
+      "Resource": "arn:aws:s3:::<BUCKET>/*"
+    },
+    {
+      "Effect": "Deny",
+      "Action": "s3:DeleteObject",
+      "Resource": "arn:aws:s3:::<BUCKET>/_next/static/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["cloudfront:CreateInvalidation", "cloudfront:GetInvalidation"],
+      "Resource": "arn:aws:cloudfront::<ACCOUNT_ID>:distribution/<DISTRIBUTION_ID>"
+    }
+  ]
+}
+```
 
 ## 設定の確認（読み取りのみ）
 
@@ -87,8 +155,8 @@ gh variable list --repo knagai16/knagai-portal --json name --jq '.[].name'
 1. [PR #11](https://github.com/knagai16/knagai-portal/pull/11)の差分と`web`・`infra`の成功を確認し、mainへマージします。
 2. [ActionsのCI](https://github.com/knagai16/knagai-portal/actions/workflows/ci.yml)で、マージ後のmainの実行を開きます。
 3. `web`・`infra`に続いて`deploy`が成功したことを確認します。PRのCIでは`deploy`がスキップされるのが正常です。
-4. `deploy`はS3反映、CloudFrontキャッシュ削除の完了待ち、公開URLとコミットIDの一致確認まで行います。
-   必要に応じて[公開サイト](https://knagai.com)と[公開コミットID](https://knagai.com/deployment.json)もブラウザーで確認します。
+4. `deploy`はS3反映、CloudFrontキャッシュ削除の完了待ち、公開URLのHTTP応答確認まで行います。
+   必要に応じて[公開サイト](https://knagai.com)もブラウザーで確認します。
 
 以降は変更をPR経由でmainへマージするだけです。再実行する場合はActionsの`CI`で`Run workflow`を選び、ブランチを`main`にします。
 初回にAWS認証で失敗した場合は、上の読み取りコマンドでsubjectとtrust policyの一致を確認してください。アクセスキーを追加する必要はありません。
