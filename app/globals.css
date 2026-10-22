@@ -1,16 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(none);
+@config "../tailwind.config.ts";
+@source "../app";
+@source "../components";
+
+/* Preserve the v3 defaults used by the existing pages. */
+@layer base {
+  *, ::before, ::after {
+    border-color: var(--color-gray-200, currentColor);
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 :root {
-  --color-ink: 11 31 58;
-  --color-muted: 98 112 135;
-  --color-paper: 243 247 252;
-  --color-surface: 255 255 255;
-  --color-accent: 89 170 255;
-  --color-accent-strong: 36 116 198;
-  --color-accent-soft: 232 242 255;
-  --line: rgb(var(--color-ink) / 0.15);
+  --palette-ink: 11 31 58;
+  --palette-muted: 98 112 135;
+  --palette-paper: 243 247 252;
+  --palette-surface: 255 255 255;
+  --palette-accent: 89 170 255;
+  --palette-accent-strong: 36 116 198;
+  --palette-accent-soft: 232 242 255;
+  --line: rgb(var(--palette-ink) / 0.15);
 }
 
 * { box-sizing: border-box; }
@@ -19,15 +30,15 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  color: rgb(var(--color-ink));
+  color: rgb(var(--palette-ink));
   background:
     radial-gradient(circle at 78% 8%, rgba(89, 170, 255, 0.25), transparent 26rem),
-    rgb(var(--color-paper));
+    rgb(var(--palette-paper));
   font-family: Inter, "Helvetica Neue", "Noto Sans JP", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-::selection { background: rgb(var(--color-accent)); color: rgb(var(--color-ink)); }
+::selection { background: rgb(var(--palette-accent)); color: rgb(var(--palette-ink)); }
 
 a, button { transition: all 180ms ease; }
 
@@ -52,7 +63,7 @@ a, button { transition: all 180ms ease; }
 
 .eyebrow::before { content: ""; width: 1.8rem; height: 2px; background: currentColor; }
 
-.panel { background: rgb(var(--color-surface)); border: 1px solid var(--line); border-radius: 1.5rem; }
+.panel { background: rgb(var(--palette-surface)); border: 1px solid var(--line); border-radius: 1.5rem; }
 
 .grid-lines {
   background-image:

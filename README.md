@@ -51,3 +51,12 @@ pages used by the CloudFront URL rewrite function.
 
 The `infra/` directory contains the AWS CDK stack used for private S3 hosting
 behind CloudFront Origin Access Control.
+
+## Automatic deployment
+
+After merging to `main`, GitHub Actions validates the app and infrastructure,
+publishes the verified static export to S3, invalidates CloudFront, and checks
+the public routes. AWS authentication uses short-lived OIDC credentials.
+
+See [automatic deployment](docs/automatic-deployment.md) for the permission
+boundaries, repository variables, setup, and recovery procedure.
