@@ -20,19 +20,19 @@ Actionsの`CI`をmainに対して手動実行することもできます。
 - `public/`内のファイルと`NEXT_PUBLIC_*`は公開されます。秘密情報を置かず、PRでも確認してください。
   `.env.example`には空のプレースホルダーだけを記載します。フォームIDは公開値です。
 
-## GitHub repository variables
+## GitHub repository variables / secrets
 
-| 名前 | 内容 |
-| --- | --- |
-| `AWS_REGION` | バケットのリージョン |
-| `AWS_ACCOUNT_ID` | AWSアカウントID |
-| `AWS_DEPLOY_ROLE_ARN` | `knagai-portal-github-deploy`ロールのARN |
-| `S3_BUCKET` | 公開先バケット名 |
-| `CLOUDFRONT_DISTRIBUTION_ID` | 配信ID |
-| `NEXT_PUBLIC_FORMSPREE_ENDPOINT` | 公開用FormspreeフォームID |
+| 名前 | 保存先 | 内容 |
+| --- | --- | --- |
+| `AWS_REGION` | Variables | バケットのリージョン |
+| `AWS_ACCOUNT_ID` | Secrets | AWSアカウントID |
+| `AWS_DEPLOY_ROLE_ARN` | Secrets | `knagai-portal-github-deploy`ロールのARN |
+| `S3_BUCKET` | Variables | 公開先バケット名 |
+| `CLOUDFRONT_DISTRIBUTION_ID` | Variables | 配信ID |
+| `NEXT_PUBLIC_FORMSPREE_ENDPOINT` | Variables | 公開用FormspreeフォームID |
 
 これらは識別子であり、認証情報ではありません。非公開にする必要がある値をVariablesや`NEXT_PUBLIC_*`へ設定しないでください。
-アカウントIDはAWS認証Actionのログ上でマスクしますが、識別子の秘匿にアクセス制御を依存させません。
+アカウントIDとロールARNはログへの露出を減らすためSecretsに保存します。認証は引き続きOIDCです。Secretsのマスクは過去のログには遡及せず、変換された値などの完全な秘匿を保証するものではありません。
 
 ## 初期設定・再構築
 
@@ -45,7 +45,7 @@ Actionsの`CI`をmainに対して手動実行することもできます。
 3. `trust.json`で`knagai-portal-github-deploy`ロールを作成し、`permissions.json`をinline policyとして設定します。
 4. `oidc.json`をGitHubの`PUT /repos/knagai16/knagai-portal/actions/oidc/customization/sub`へ適用します。
    subjectのキー順は`repository_id`, `ref`, `workflow_ref`, `event_name`です。IAM側と同時に変更してください。
-5. 上記repository variablesを設定します。AWSキーを登録する必要はありません。
+5. 上表の保存先に従ってrepository variables / secretsを設定します。AWSキーを登録する必要はありません。
 6. mainをPR・CI必須に保護し、`web`・`infra`の成功後にマージします。
 
 作成したIAMロールとOIDCはサイトのCDKスタックとは別管理です。以下の設定例から再構築できます。
@@ -140,6 +140,7 @@ aws iam get-role-policy --role-name knagai-portal-github-deploy \
 
 gh api repos/knagai16/knagai-portal/actions/oidc/customization/sub
 gh variable list --repo knagai16/knagai-portal --json name --jq '.[].name'
+gh secret list --repo knagai16/knagai-portal --json name --jq '.[].name'
 ```
 
 確認する点は次のとおりです。
@@ -148,7 +149,7 @@ gh variable list --repo knagai16/knagai-portal --json name --jq '.[].name'
 - ロールのtrust policyが、対象リポジトリID、`refs/heads/main`、対象workflow、`push`と`workflow_dispatch`に限定されていること。
 - inline policyが対象S3バケットとCloudFront Distributionに限定され、`_next/static/*`の削除が明示的に拒否されていること。
 - GitHub側が`use_default: false`で、`include_claim_keys`が上記の4キーと同じ順序であること。
-- Variablesに表の6項目があること。このコマンドでは値を表示しません。
+- Variablesに4項目、Secretsに2項目があること。このコマンドでは値を表示しません。
 
 ## 初回公開と普段の操作
 
@@ -171,3 +172,7 @@ gh variable list --repo knagai16/knagai-portal --json name --jq '.[].name'
 古いrunの再実行による巻き戻しは拒否されるため、ロールバックはコードをrevertした新しいmainコミットで行います。
 設定更新やキャッシュ削除の反映に時間がかかると、タイムアウトする場合があります。ジョブ失敗は必ずしもアップロード未実施を意味しません。
 スモークテストでは問い合わせを送信しません。フォーム送信そのものは別途確認してください。
+
+## VariablesからSecretsへの移行
+
+先に同名のSecretsを登録し、workflowの参照を変更します。変更がmainへマージされ、新しい参照でデプロイが成功した後、Variablesの`AWS_ACCOUNT_ID`と`AWS_DEPLOY_ROLE_ARN`を削除します。先にVariablesを削除すると、移行前のmainのデプロイが失敗します。
